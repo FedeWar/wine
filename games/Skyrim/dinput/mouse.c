@@ -426,11 +426,7 @@ static void warp_check( SysMouseImpl* This, BOOL force )
 
         This->last_warped = now;
         This->need_warp = FALSE;
-        //if (!GetClientRect(This->base.win, &rect)) return;	// Rimosso
-
-        rect.top = rect.left = 0;
-        rect.right = 1366;		// Aggiunti
-        rect.bottom = 768;
+        if (!GetClientRect(This->base.win, &rect)) return;
 
         MapWindowPoints( This->base.win, 0, (POINT *)&rect, 2 );
         if (!This->clipped)
@@ -452,8 +448,7 @@ static void warp_check( SysMouseImpl* This, BOOL force )
             This->clipped = GetClipCursor( &new_rect ) && EqualRect( &rect, &new_rect );
         }
     }
-    This->clipped = FALSE;				// FIX
-    // SetCursorPos( 1366 / 2, 768 / 2 );	// Aggiunto
+    This->clipped = FALSE;	// FIX
 }
 
 
