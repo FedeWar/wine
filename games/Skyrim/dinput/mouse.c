@@ -427,7 +427,6 @@ static void warp_check( SysMouseImpl* This, BOOL force )
         This->last_warped = now;
         This->need_warp = FALSE;
         if (!GetClientRect(This->base.win, &rect)) return;
-
         MapWindowPoints( This->base.win, 0, (POINT *)&rect, 2 );
         if (!This->clipped)
         {
@@ -448,7 +447,7 @@ static void warp_check( SysMouseImpl* This, BOOL force )
             This->clipped = GetClipCursor( &new_rect ) && EqualRect( &rect, &new_rect );
         }
     }
-    This->clipped = FALSE;	// FIX
+    This->warp_override = WARP_FORCE_ON;	// FIXME Workaround
 }
 
 
@@ -486,13 +485,15 @@ static HRESULT WINAPI SysMouseWImpl_Acquire(LPDIRECTINPUTDEVICE8W iface)
         ShowCursor(FALSE); /* hide cursor */
         warp_check( This, TRUE );
     }
-    else if (This->warp_override == WARP_FORCE_ON)
+
+    if (This->warp_override == WARP_FORCE_ON)
     {
         /* Need a window to warp mouse in. */
         if (!This->base.win) This->base.win = GetDesktopWindow();
         warp_check( This, TRUE );
     }
-    else if (This->clipped)
+
+    if (This->clipped)
     {
         ClipCursor( NULL );
         This->clipped = FALSE;
